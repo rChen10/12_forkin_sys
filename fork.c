@@ -6,27 +6,32 @@
 #include <time.h>
 
 int main(){
-  printf("Parent here, waddup my dudes.\n");
-  
-  srand(time(NULL));
-  int sleep_time = (rand() % 16) + 5;
+  printf("I'm the parent process\n");
 
   //sleep(10); re-seed works if given enough time
 
-  if (fork()){ //randomize first parent
-    srand(time(NULL));
-    sleep_time = (rand() % 16) + 5;
-  }
   int fs = fork();
+  int fs2 = 0;
   
-  int *status;
+  int status;
 
-  if (fs){
-    int cpid = wait(status);
-    printf("%d slept for %d seconds\n", cpid, sleep_time);
+  if (fs ){
+  	int cpid = wait(&status);   
+    printf("%d slept for %d seconds\n", cpid, WEXITSTATUS(status));
+  	int fs2 = fork();
+  	if(fs2){
+  		int cpid = wait(&status);   
+    	printf("%d slept for %d seconds\n", cpid, WEXITSTATUS(status));
+   		printf("Parent process has finished\n");
+   		exit(0);
+  	}
   }
-  else{
+  if(!fs2){
+  	printf("I'm a child, whose pid is %d\n", getpid());
+  	srand(getpid());
+    int sleep_time = (rand() % 16) + 5;
     sleep(sleep_time);
-    printf("lol xdd\n");
+    printf("This child process has finished.\n");
+    return sleep_time;
   }
 }
